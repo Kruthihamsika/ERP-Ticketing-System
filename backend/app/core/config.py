@@ -18,6 +18,10 @@ class Settings(BaseModel):
     database_url: str
     database_echo: bool = Field(default=False)
 
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
     cors_allow_credentials: bool = Field(default=True)
     cors_allow_methods: list[str] = Field(default_factory=lambda: ["*"])
@@ -38,6 +42,21 @@ def _get_bool(name: str, default: bool) -> bool:
     return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _get_int(name: str, default: int | None = None) -> int:
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        if default is None:
+            raise KeyError(name)
+        return default
+    return int(raw_value)
+
+
+def _normalize_database_url(database_url: str) -> str:
+    if database_url.startswith("postgresql://"):
+        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return database_url
+
+
 @lru_cache
 def get_settings() -> Settings:
     try:
@@ -47,8 +66,11 @@ def get_settings() -> Settings:
             environment=os.getenv("ENVIRONMENT", "local"),
             debug=_get_bool("DEBUG", False),
             enable_docs=_get_bool("ENABLE_DOCS", True),
-            database_url=os.environ["DATABASE_URL"],
+            database_url=_normalize_database_url(os.environ["DATABASE_URL"]),
             database_echo=_get_bool("DATABASE_ECHO", False),
+            secret_key=os.environ["SECRET_KEY"],
+            algorithm=os.environ["ALGORITHM"],
+            access_token_expire_minutes=_get_int("ACCESS_TOKEN_EXPIRE_MINUTES"),
             cors_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000"),
             cors_allow_credentials=_get_bool("CORS_ALLOW_CREDENTIALS", True),
             cors_allow_methods=os.getenv("CORS_ALLOW_METHODS", "*"),
@@ -57,6 +79,8 @@ def get_settings() -> Settings:
     except KeyError as exc:
         missing_name = exc.args[0]
         raise RuntimeError(f"Missing required environment variable: {missing_name}") from exc
+    except ValueError as exc:
+        raise RuntimeError("ACCESS_TOKEN_EXPIRE_MINUTES must be a valid integer") from exc
     except ValidationError as exc:
         raise RuntimeError(f"Invalid application configuration: {exc}") from exc
 

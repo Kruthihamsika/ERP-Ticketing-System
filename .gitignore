@@ -1,0 +1,38 @@
+# Environment Variables
+
+.env
+.env.*
+
+# Python
+
+**pycache**/
+*.pyc
+*.pyo
+*.pyd
+
+# Uploads
+
+uploads/
+backend/uploads/
+
+# Node
+
+node_modules/
+
+# Build Outputs
+
+dist/
+build/
+
+# Vite
+
+.vite/
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+*.log
