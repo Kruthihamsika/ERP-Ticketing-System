@@ -12,13 +12,12 @@ import {
 
 import { useToast } from "../components/ui/Toast";
 import { SectionHeader } from "../components/ui/SectionHeader";
-
 import { createTicket } from "../services/tickets";
 
 import {
   departments,
   priorities,
-  type CreateTicketPayload,
+  type TicketCreatePayload,
 } from "../types";
 
 export default function CreateTicketPage() {
@@ -29,7 +28,7 @@ export default function CreateTicketPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<CreateTicketPayload>({
+  } = useForm<TicketCreatePayload>({
     defaultValues: {
       department: "IT",
       priority: "MEDIUM",
@@ -45,15 +44,12 @@ export default function CreateTicketPage() {
       navigate("/tickets");
     },
     onError: () => {
-      showToast(
-        "Unable to create ticket",
-        "error"
-      );
+      showToast("Unable to create ticket", "error");
     },
   });
 
   async function onSubmit(
-    values: CreateTicketPayload
+    values: TicketCreatePayload
   ) {
     await createMutation.mutateAsync(values);
   }
@@ -93,8 +89,7 @@ export default function CreateTicketPage() {
                 className="input"
                 placeholder="Example: Laptop cannot connect to VPN"
                 {...register("title", {
-                  required:
-                    "Ticket title is required",
+                  required: "Ticket title is required",
                   minLength: {
                     value: 5,
                     message:
@@ -167,8 +162,7 @@ export default function CreateTicketPage() {
                 className="w-full rounded-2xl border border-slate-200 bg-white p-4 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 placeholder="Describe the issue, impact, affected users, expected outcome, and any troubleshooting already attempted."
                 {...register("description", {
-                  required:
-                    "Description is required",
+                  required: "Description is required",
                   minLength: {
                     value: 20,
                     message:
@@ -179,10 +173,7 @@ export default function CreateTicketPage() {
 
               {errors.description && (
                 <p className="mt-2 text-sm text-red-600">
-                  {
-                    errors.description
-                      .message
-                  }
+                  {errors.description.message}
                 </p>
               )}
             </div>
@@ -196,25 +187,11 @@ export default function CreateTicketPage() {
             </h3>
 
             <ul className="mt-4 space-y-3 text-sm text-slate-600">
-              <li>
-                • Use a clear and concise title.
-              </li>
-
-              <li>
-                • Include business impact.
-              </li>
-
-              <li>
-                • Mention affected systems.
-              </li>
-
-              <li>
-                • Include troubleshooting steps.
-              </li>
-
-              <li>
-                • Select the correct priority.
-              </li>
+              <li>• Use a clear and concise title.</li>
+              <li>• Include business impact.</li>
+              <li>• Mention affected systems.</li>
+              <li>• Include troubleshooting steps.</li>
+              <li>• Select the correct priority.</li>
             </ul>
           </div>
 
